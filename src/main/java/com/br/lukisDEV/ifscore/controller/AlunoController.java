@@ -1,9 +1,10 @@
 package com.br.lukisDEV.ifscore.controller;
 
-import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
 import com.br.lukisDEV.ifscore.dto.AlunoDto;
 import com.br.lukisDEV.ifscore.dto.AlunoPerfilDto;
+import com.br.lukisDEV.ifscore.dto.AlunoResponseDto;
 import com.br.lukisDEV.ifscore.service.AlunoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,20 +27,20 @@ public class AlunoController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<AlunoEntity> findAll() {
-        return alunoService.findAll();
+    public List<AlunoResponseDto> findAll() {
+        return alunoService.findAll().stream().map(AlunoResponseDto::from).toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AlunoEntity create(@RequestBody AlunoDto dto) {
-        return alunoService.save(dto);
+    public AlunoResponseDto create(@Valid @RequestBody AlunoDto dto) {
+        return AlunoResponseDto.from(alunoService.save(dto));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AlunoEntity update(@PathVariable UUID id, @RequestBody AlunoDto dto) {
-        return alunoService.updateAluno(id, dto);
+    public AlunoResponseDto update(@PathVariable UUID id, @Valid @RequestBody AlunoDto dto) {
+        return AlunoResponseDto.from(alunoService.updateAluno(id, dto));
     }
 
     @DeleteMapping("/{id}")

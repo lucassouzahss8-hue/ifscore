@@ -20,9 +20,13 @@ public class PartidaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String campus1;
+    @ManyToOne
+    @JoinColumn(name = "campus1_id")
+    private CampusEntity campus1;
 
-    private String campus2;
+    @ManyToOne
+    @JoinColumn(name = "campus2_id")
+    private CampusEntity campus2;
 
     @Builder.Default
     private Integer placarCampus1 = 0;

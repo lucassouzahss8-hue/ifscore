@@ -4,7 +4,6 @@ import com.br.lukisDEV.ifscore.database.model.CampusEntity;
 import com.br.lukisDEV.ifscore.database.repository.ICampusRepository;
 import com.br.lukisDEV.ifscore.dto.CampusDto;
 import com.br.lukisDEV.ifscore.exception.NotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class CampusService {
     public CampusEntity updateCampus(UUID id, CampusDto campusDto) {
 
         CampusEntity campus = campusRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Campus não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Campus nao encontrado"));
 
             campus.setNome(campusDto.getNome());
             campus.setRegiao(campusDto.getRegiao());
@@ -41,7 +40,7 @@ public class CampusService {
     @Transactional
     public void deleteCampus(UUID id) {
         if (!campusRepository.existsById(id)) {
-            throw new EntityNotFoundException("Campus não encontrado");
+            throw new NotFoundException("Campus nao encontrado");
         }
         campusRepository.deleteById(id);
     }
@@ -70,9 +69,14 @@ public class CampusService {
         ));
     }
 
+    public CampusEntity findByNome(String nome) {
+        return campusRepository.findByNome(nome)
+                .orElseThrow(() -> new NotFoundException("Campus '" + nome + "' nao encontrado"));
+    }
+
     public void validarCampus(String nome) {
         if (!campusRepository.existsByNome(nome)) {
-            throw new RuntimeException("Campus '" + nome + "' não é um campus válido do IFPR");
+            throw new IllegalArgumentException("Campus '" + nome + "' nao e um campus valido do IFPR");
         }
     }
 }

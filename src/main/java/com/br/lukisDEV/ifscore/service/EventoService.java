@@ -4,7 +4,6 @@ import com.br.lukisDEV.ifscore.database.model.EventoEntity;
 import com.br.lukisDEV.ifscore.database.repository.IEventoRepository;
 import com.br.lukisDEV.ifscore.dto.EventoDto;
 import com.br.lukisDEV.ifscore.exception.NotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,7 @@ public class EventoService {
 
     public EventoEntity findById(UUID id) {
         return eventoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Evento nao encontrado"));
     }
 
     @Transactional
@@ -60,7 +59,7 @@ public class EventoService {
     public void deleteEvento(UUID id) {
 
         if (!eventoRepository.existsById(id)) {
-            throw new NotFoundException("Evento não encontrado");
+            throw new NotFoundException("Evento nao encontrado");
         }
 
         eventoRepository.deleteById(id);

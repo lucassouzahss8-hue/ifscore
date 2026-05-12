@@ -1,7 +1,7 @@
 package com.br.lukisDEV.ifscore.controller;
 
-import com.br.lukisDEV.ifscore.database.model.CampusEntity;
 import com.br.lukisDEV.ifscore.dto.CampusDto;
+import com.br.lukisDEV.ifscore.dto.CampusResponseDto;
 import com.br.lukisDEV.ifscore.service.CampusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,8 @@ public class CampusController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CampusEntity> findAll(){
-        return campusService.findAll();
+    public List<CampusResponseDto> findAll(){
+        return campusService.findAll().stream().map(CampusResponseDto::from).toList();
     }
 
     @PostMapping
@@ -32,8 +32,8 @@ public class CampusController {
     }
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CampusEntity updateCampus(@PathVariable UUID id, @RequestBody CampusDto campusDto){
-        return campusService.updateCampus(id, campusDto);
+    public CampusResponseDto updateCampus(@PathVariable UUID id, @Valid @RequestBody CampusDto campusDto){
+        return CampusResponseDto.from(campusService.updateCampus(id, campusDto));
     }
 
     @DeleteMapping("/{id}")

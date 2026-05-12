@@ -1,3 +1,6 @@
+server:
+  port: 2121
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
@@ -6,5 +9,5 @@ spring:
     driverClassName: org.postgresql.Driver
 
   jpa:
-      hibernate:
-        ddl-auto: update
+    hibernate:
+      ddl-auto: update

@@ -1,10 +1,10 @@
 package com.br.lukisDEV.ifscore.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -18,6 +18,7 @@ public class EventoDto {
     private String nome;
     @NotBlank
     private String local;
+    @NotNull
     private LocalDate data;
     private List<ModalidadeDto> modalidades;
 

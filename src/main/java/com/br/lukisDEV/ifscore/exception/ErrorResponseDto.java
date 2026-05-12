@@ -1,6 +1,5 @@
 package com.br.lukisDEV.ifscore.exception;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 
 @Getter

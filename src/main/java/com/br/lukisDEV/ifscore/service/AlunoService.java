@@ -1,6 +1,7 @@
 package com.br.lukisDEV.ifscore.service;
 
 import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
+import com.br.lukisDEV.ifscore.database.model.CampusEntity;
 import com.br.lukisDEV.ifscore.database.model.EstatisticaEntity;
 import com.br.lukisDEV.ifscore.database.model.ModalidadeEntity;
 import com.br.lukisDEV.ifscore.database.repository.IAlunoRepository;
@@ -9,7 +10,6 @@ import com.br.lukisDEV.ifscore.database.repository.IModalidadeRepository;
 import com.br.lukisDEV.ifscore.dto.AlunoDto;
 import com.br.lukisDEV.ifscore.dto.AlunoPerfilDto;
 import com.br.lukisDEV.ifscore.exception.NotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,12 +28,9 @@ public class AlunoService {
     private final IEstatisticaRepository estatisticaRepository;
     private final CampusService campusService;
 
-    // =========================
-    // 📋 PERFIL
-    // =========================
     public AlunoPerfilDto getAlunoPerfil(UUID id) {
         AlunoEntity aluno = alunoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Aluno não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Aluno nao encontrado"));
 
         List<EstatisticaEntity> estatisticas = estatisticaRepository.findByAluno_Id(id);
 
@@ -48,26 +45,20 @@ public class AlunoService {
 
         return AlunoPerfilDto.builder()
                 .nome(aluno.getNome())
-                .campus(aluno.getCampus())
+                .campus(aluno.getCampus().getNome())
                 .numeroRegata(aluno.getNumeroRegata())
                 .pontuacao(totalPontos)
                 .build();
     }
 
-    // =========================
-    // 📋 LISTAR
-    // =========================
     public List<AlunoEntity> findAll() {
         return alunoRepository.findAll();
     }
 
-    // =========================
-    // 💾 CRIAR
-    // =========================
     @Transactional
     public AlunoEntity save(AlunoDto dto) {
 
-        campusService.validarCampus(dto.getCampus());
+        CampusEntity campus = campusService.findByNome(dto.getCampus());
 
         Set<ModalidadeEntity> modalidades = new HashSet<>();
 
@@ -77,7 +68,7 @@ public class AlunoService {
 
         AlunoEntity aluno = AlunoEntity.builder()
                 .nome(dto.getNome())
-                .campus(dto.getCampus())
+                .campus(campus)
                 .numeroRegata(dto.getNumeroRegata())
                 .modalidades(modalidades)
                 .build();
@@ -85,19 +76,16 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
-    // =========================
-    // 🔄 ATUALIZAR
-    // =========================
     @Transactional
     public AlunoEntity updateAluno(UUID id, AlunoDto dto) {
 
-        campusService.validarCampus(dto.getCampus());
+        CampusEntity campus = campusService.findByNome(dto.getCampus());
 
         AlunoEntity aluno = alunoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Aluno nao encontrado"));
 
         aluno.setNome(dto.getNome());
-        aluno.setCampus(dto.getCampus());
+        aluno.setCampus(campus);
         aluno.setNumeroRegata(dto.getNumeroRegata());
 
         if (dto.getModalidadesIds() != null) {
@@ -110,14 +98,11 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
-    // =========================
-    // ❌ DELETE
-    // =========================
     @Transactional
     public void deleteAluno(UUID id) {
 
         if (!alunoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Aluno não encontrado");
+            throw new NotFoundException("Aluno nao encontrado");
         }
 
         alunoRepository.deleteById(id);

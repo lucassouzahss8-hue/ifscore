@@ -1,10 +1,7 @@
 package com.br.lukisDEV.ifscore.controller;
 
-import com.br.lukisDEV.ifscore.database.model.ModalidadeEntity;
-import com.br.lukisDEV.ifscore.database.model.ProfessorEntity;
-import com.br.lukisDEV.ifscore.dto.ModalidadeDto;
 import com.br.lukisDEV.ifscore.dto.ProfessorDto;
-import com.br.lukisDEV.ifscore.service.ModalidadeService;
+import com.br.lukisDEV.ifscore.dto.ProfessorResponseDto;
 import com.br.lukisDEV.ifscore.service.ProfessorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/professor")
@@ -23,15 +21,26 @@ public class ProfessorController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProfessorEntity> findAll(){
-        return professorService.findAll();
+    public List<ProfessorResponseDto> findAll(){
+        return professorService.findAll().stream().map(ProfessorResponseDto::from).toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void saveProfessor
-        (@Valid @RequestBody ProfessorDto professorDto){
-            professorService.save(professorDto);
+    public ProfessorResponseDto saveProfessor(@Valid @RequestBody ProfessorDto professorDto){
+        return ProfessorResponseDto.from(professorService.save(professorDto));
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ProfessorResponseDto updateProfessor(@PathVariable UUID id, @Valid @RequestBody ProfessorDto professorDto){
+        return ProfessorResponseDto.from(professorService.updateProfessor(id, professorDto));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProfessor(@PathVariable UUID id){
+        professorService.deleteProfessor(id);
     }
 
 }

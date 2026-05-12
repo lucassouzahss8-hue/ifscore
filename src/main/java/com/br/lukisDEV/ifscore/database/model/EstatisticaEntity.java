@@ -19,8 +19,9 @@ public class EstatisticaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank
-    private String campus;
+    @ManyToOne
+    @JoinColumn(name = "campus_id", nullable = false)
+    private CampusEntity campus;
 
     @ManyToOne
     @JoinColumn(name = "aluno_id")

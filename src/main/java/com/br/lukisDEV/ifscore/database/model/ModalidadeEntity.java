@@ -28,9 +28,15 @@ public class ModalidadeEntity {
     @JsonBackReference
     private EventoEntity evento;
 
-    @ElementCollection
-    private List<String> campus;
+    @ManyToMany
+    @JoinTable(
+            name = "modalidade_campus",
+            joinColumns = @JoinColumn(name = "modalidade_id"),
+            inverseJoinColumns = @JoinColumn(name = "campus_id")
+    )
+    private List<CampusEntity> campus;
 
+    @Builder.Default
     @OneToMany(mappedBy = "modalidade", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<PartidaEntity> partidas = new ArrayList<>();

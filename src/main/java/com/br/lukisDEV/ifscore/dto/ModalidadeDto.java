@@ -1,8 +1,9 @@
 package com.br.lukisDEV.ifscore.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.apache.catalina.LifecycleState;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,9 @@ public class ModalidadeDto {
     private String nome;
     @NotBlank
     private String tipo;
+    @NotEmpty
     private List<String> campus;
+    @NotNull
     private UUID eventoId;
 
 }

@@ -1,10 +1,10 @@
 package com.br.lukisDEV.ifscore.controller;
 
-import com.br.lukisDEV.ifscore.database.model.EstatisticaEntity;
-import com.br.lukisDEV.ifscore.database.model.ModalidadeEntity;
-import com.br.lukisDEV.ifscore.database.model.PartidaEntity;
 import com.br.lukisDEV.ifscore.dto.EstatisticaDto;
+import com.br.lukisDEV.ifscore.dto.EstatisticaResponseDto;
 import com.br.lukisDEV.ifscore.dto.ModalidadeDto;
+import com.br.lukisDEV.ifscore.dto.ModalidadeResponseDto;
+import com.br.lukisDEV.ifscore.dto.PartidaResponseDto;
 import com.br.lukisDEV.ifscore.dto.PlacarDto;
 import com.br.lukisDEV.ifscore.service.ModalidadeService;
 import jakarta.validation.Valid;
@@ -25,36 +25,36 @@ public class ModalidadeController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ModalidadeEntity>findAll(){
-        return modalidadeService.findAll();
+    public List<ModalidadeResponseDto>findAll(){
+        return modalidadeService.findAll().stream().map(ModalidadeResponseDto::from).toList();
     }
 
 
     @PostMapping("/criar")
     @ResponseStatus(HttpStatus.CREATED)
-    public ModalidadeEntity criar(@RequestBody @Valid ModalidadeDto dto) {
-        return modalidadeService.criarModalidade(dto);
+    public ModalidadeResponseDto criar(@Valid @RequestBody ModalidadeDto dto) {
+        return ModalidadeResponseDto.from(modalidadeService.criarModalidade(dto));
     }
 
     @GetMapping("/{id}/partidas")
-    public List<PartidaEntity> listarPartidas(@PathVariable UUID id){
-        return modalidadeService.listarPartidas(id);
+    public List<PartidaResponseDto> listarPartidas(@PathVariable UUID id){
+        return modalidadeService.listarPartidas(id).stream().map(PartidaResponseDto::from).toList();
     }
 
     @PutMapping("/partida/{id}/somar")
     @ResponseStatus(HttpStatus.OK)
-    public PartidaEntity somarPontos(
+    public PartidaResponseDto somarPontos(
             @PathVariable UUID id,
-            @RequestBody PlacarDto dto
+            @Valid @RequestBody PlacarDto dto
     ) {
 
-        return modalidadeService.somarPontos(id, dto);
+        return PartidaResponseDto.from(modalidadeService.somarPontos(id, dto));
     }
     @PutMapping("/partida/{id}/finalizar")
     @ResponseStatus(HttpStatus.OK)
-    public PartidaEntity finalizarPartida(@PathVariable UUID id) {
+    public PartidaResponseDto finalizarPartida(@PathVariable UUID id) {
 
-        return modalidadeService.finalizarPartida(id);
+        return PartidaResponseDto.from(modalidadeService.finalizarPartida(id));
     }
 
     @GetMapping("/{id}/classificacao-simples")
@@ -71,24 +71,24 @@ public class ModalidadeController {
 
     @PostMapping("/{id}/semifinal")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<PartidaEntity> semifinal(@PathVariable UUID id) {
-        return modalidadeService.gerarSemifinal(id);
+    public List<PartidaResponseDto> semifinal(@PathVariable UUID id) {
+        return modalidadeService.gerarSemifinal(id).stream().map(PartidaResponseDto::from).toList();
     }
 
     @PostMapping("/{id}/final")
     @ResponseStatus(HttpStatus.CREATED)
-    public PartidaEntity finalJogo(@PathVariable UUID id) {
-        return modalidadeService.gerarFinal(id);
+    public PartidaResponseDto finalJogo(@PathVariable UUID id) {
+        return PartidaResponseDto.from(modalidadeService.gerarFinal(id));
     }
 
     @PutMapping("/partida/{id}/estatisticas")
     @ResponseStatus(HttpStatus.OK)
-    public EstatisticaEntity estatisticas(
+    public EstatisticaResponseDto estatisticas(
             @PathVariable UUID id,
-            @RequestBody EstatisticaDto dto
+            @Valid @RequestBody EstatisticaDto dto
     ) {
 
-        return modalidadeService.atualizarEstatisticas(id, dto);
+        return EstatisticaResponseDto.from(modalidadeService.atualizarEstatisticas(id, dto));
     }
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

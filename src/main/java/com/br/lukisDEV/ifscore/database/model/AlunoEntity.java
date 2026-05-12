@@ -23,11 +23,13 @@ public class AlunoEntity {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
-    private String campus;
+    @ManyToOne
+    @JoinColumn(name = "campus_id", nullable = false)
+    private CampusEntity campus;
 
     private Integer numeroRegata;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "aluno_modalidade",
