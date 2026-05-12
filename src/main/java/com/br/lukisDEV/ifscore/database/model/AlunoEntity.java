@@ -23,8 +23,9 @@ public class AlunoEntity {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
-    private String campus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus_id", nullable = false)
+    private CampusEntity campus;
 
     private Integer numeroRegata;
 
@@ -34,5 +35,6 @@ public class AlunoEntity {
             joinColumns = @JoinColumn(name = "aluno_id"),
             inverseJoinColumns = @JoinColumn(name = "modalidade_id")
     )
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Set<ModalidadeEntity> modalidades = new HashSet<>();
 }

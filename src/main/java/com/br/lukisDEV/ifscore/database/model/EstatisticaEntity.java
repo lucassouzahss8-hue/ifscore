@@ -19,10 +19,11 @@ public class EstatisticaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank
-    private String campus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus_id", nullable = false)
+    private CampusEntity campus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aluno_id")
     private AlunoEntity aluno;
 
@@ -47,7 +48,7 @@ public class EstatisticaEntity {
     @Builder.Default
     private  Integer faltas = 0;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partida_id")
     @JsonBackReference
     private PartidaEntity partida;

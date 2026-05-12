@@ -1,12 +1,13 @@
-// package com.br.lukisDEV.ifscore;
+package com.br.lukisDEV.ifscore;
 
-//import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-//@SpringBootTest
-//class IfscoreApplicationTests {
+@SpringBootTest
+class IfscoreApplicationTests {
 
-//	@Test
-//	void contextLoads() {
-//	}
-//}
+	@Test
+	void contextLoads() {
+	}
+
+}

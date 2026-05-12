@@ -35,40 +35,45 @@ public class ModalidadeService {
         EventoEntity evento = eventoRepository.findById(dto.getEventoId())
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
 
+        List<CampusEntity> campusEntities = new ArrayList<>();
         if (dto.getCampus() != null) {
-            dto.getCampus().forEach(campusService::validarCampus);
+            campusEntities = dto.getCampus().stream()
+                    .map(campusService::findByNome)
+                    .toList();
         }
 
         ModalidadeEntity modalidade = ModalidadeEntity.builder()
                 .nome(dto.getNome())
                 .evento(evento)
-                .campus(dto.getCampus())
-                .partidas(new ArrayList<>())
+                .campus(new HashSet<>(campusEntities))
+                .partidas(new HashSet<>())
                 .build();
 
-        List<String> campusList = new ArrayList<>(dto.getCampus());
-        Collections.shuffle(campusList);
-
-        List<String> chaveA = new ArrayList<>();
-        List<String> chaveB = new ArrayList<>();
-
-        for (int i = 0; i < campusList.size(); i++) {
-            if (i % 2 == 0) chaveA.add(campusList.get(i));
-            else chaveB.add(campusList.get(i));
-        }
-
         modalidade = modalidadeRepository.save(modalidade);
+
+        List<CampusEntity> campusShuffle = new ArrayList<>(campusEntities);
+        Collections.shuffle(campusShuffle);
+
+        List<CampusEntity> chaveA = new ArrayList<>();
+        List<CampusEntity> chaveB = new ArrayList<>();
+
+        for (int i = 0; i < campusShuffle.size(); i++) {
+            if (i % 2 == 0) chaveA.add(campusShuffle.get(i));
+            else chaveB.add(campusShuffle.get(i));
+        }
 
         List<PartidaEntity> partidasList = new ArrayList<>();
         partidasList.addAll(gerarPartidas(chaveA, "A", modalidade));
         partidasList.addAll(gerarPartidas(chaveB, "B", modalidade));
 
+        modalidade.getPartidas().addAll(partidasList);
         partidaRepository.saveAll(partidasList);
 
         return modalidade;
     }
 
-    private List<PartidaEntity> gerarPartidas(List<String> times, String chave, ModalidadeEntity modalidade) {
+
+    private List<PartidaEntity> gerarPartidas(List<CampusEntity> times, String chave, ModalidadeEntity modalidade) {
 
         List<PartidaEntity> lista = new ArrayList<>();
 
@@ -112,18 +117,17 @@ public class ModalidadeService {
         Map<String, Integer> saldo = new HashMap<>();
 
         for (PartidaEntity p : partidas) {
-
             if (!chave.equals(p.getChave())) continue;
-            if (p.getFinalizada() == null || !p.getFinalizada()) continue;
-
-            String c1 = p.getCampus1();
-            String c2 = p.getCampus2();
-
+            
+            String c1 = p.getCampus1().getNome();
+            String c2 = p.getCampus2().getNome();
+            
             vitorias.putIfAbsent(c1, 0);
             vitorias.putIfAbsent(c2, 0);
-
             saldo.putIfAbsent(c1, 0);
             saldo.putIfAbsent(c2, 0);
+
+            if (p.getFinalizada() == null || !p.getFinalizada()) continue;
 
             int p1 = p.getPlacarCampus1();
             int p2 = p.getPlacarCampus2();
@@ -167,10 +171,22 @@ public class ModalidadeService {
         for (PartidaEntity p : partidas) {
 
             if (!chave.equals(p.getChave())) continue;
-            if (p.getFinalizada() == null || !p.getFinalizada()) continue;
+            
+            String c1 = p.getCampus1().getNome();
+            String c2 = p.getCampus2().getNome();
+            
+            jogos.putIfAbsent(c1, 0);
+            jogos.putIfAbsent(c2, 0);
+            vitorias.putIfAbsent(c1, 0);
+            vitorias.putIfAbsent(c2, 0);
+            derrotas.putIfAbsent(c1, 0);
+            derrotas.putIfAbsent(c2, 0);
+            pontosPro.putIfAbsent(c1, 0);
+            pontosPro.putIfAbsent(c2, 0);
+            pontosContra.putIfAbsent(c1, 0);
+            pontosContra.putIfAbsent(c2, 0);
 
-            String c1 = p.getCampus1();
-            String c2 = p.getCampus2();
+            if (p.getFinalizada() == null || !p.getFinalizada()) continue;
 
             jogos.put(c1, jogos.getOrDefault(c1, 0) + 1);
             jogos.put(c2, jogos.getOrDefault(c2, 0) + 1);
@@ -276,9 +292,12 @@ public class ModalidadeService {
         ModalidadeEntity modalidade = modalidadeRepository.findById(modalidadeId)
                 .orElseThrow();
 
+        CampusEntity campus1 = campusService.findByNome(c1);
+        CampusEntity campus2 = campusService.findByNome(c2);
+
         return PartidaEntity.builder()
-                .campus1(c1)
-                .campus2(c2)
+                .campus1(campus1)
+                .campus2(campus2)
                 .modalidade(modalidade)
                 .rodada(rodada)
                 .placarCampus1(0)
@@ -297,12 +316,14 @@ public class ModalidadeService {
             throw new RuntimeException("Partida já finalizada");
         }
 
-        if (dto.getTime().equalsIgnoreCase("campus1")) {
+        if (dto.getTime().equalsIgnoreCase("campus1") || 
+            dto.getTime().equalsIgnoreCase(partida.getCampus1().getNome())) {
             partida.setPlacarCampus1(partida.getPlacarCampus1() + dto.getPontos());
-        } else if (dto.getTime().equalsIgnoreCase("campus2")) {
+        } else if (dto.getTime().equalsIgnoreCase("campus2") || 
+                   dto.getTime().equalsIgnoreCase(partida.getCampus2().getNome())) {
             partida.setPlacarCampus2(partida.getPlacarCampus2() + dto.getPontos());
         } else {
-            throw new RuntimeException("Time inválido");
+            throw new RuntimeException("Time inválido: " + dto.getTime());
         }
 
         return partidaRepository.save(partida);
@@ -319,9 +340,9 @@ public class ModalidadeService {
         }
 
         if (partida.getPlacarCampus1() > partida.getPlacarCampus2()) {
-            partida.setVencedor(partida.getCampus1());
+            partida.setVencedor(partida.getCampus1().getNome());
         } else if (partida.getPlacarCampus2() > partida.getPlacarCampus1()) {
-            partida.setVencedor(partida.getCampus2());
+            partida.setVencedor(partida.getCampus2().getNome());
         } else {
             partida.setVencedor("EMPATE");
         }
@@ -340,18 +361,18 @@ public class ModalidadeService {
         PartidaEntity partida = partidaRepository.findById(partidaId)
                 .orElseThrow(() -> new NotFoundException("Partida não encontrada"));
 
-        campusService.validarCampus(dto.getCampus());
+        CampusEntity campus = campusService.findByNome(dto.getCampus());
 
         EstatisticaEntity est;
 
         if (dto.getAlunoId() != null) {
             est = estatisticaRepository
-                    .findByPartida_IdAndCampusAndAluno_Id(partidaId, dto.getCampus(), dto.getAlunoId())
+                    .findByPartidaIdAndCampusNomeAndAlunoId(partidaId, dto.getCampus(), dto.getAlunoId())
                     .orElseGet(() -> {
                         AlunoEntity aluno = alunoRepository.findById(dto.getAlunoId())
                                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado"));
                         return EstatisticaEntity.builder()
-                                .campus(dto.getCampus())
+                                .campus(campus)
                                 .partida(partida)
                                 .aluno(aluno)
                                 .cestas(0)
@@ -365,9 +386,9 @@ public class ModalidadeService {
                     });
         } else {
             est = estatisticaRepository
-                    .findByPartida_IdAndCampus(partidaId, dto.getCampus())
+                    .findByPartidaIdAndCampusNome(partidaId, dto.getCampus())
                     .orElseGet(() -> EstatisticaEntity.builder()
-                                    .campus(dto.getCampus())
+                                    .campus(campus)
                                     .partida(partida)
                                     .cestas(0)
                                     .bolas2(0)
@@ -392,7 +413,7 @@ public class ModalidadeService {
                 + ((dto.getBolas3() != null ? dto.getBolas3() : 0) * 3)
                 + (dto.getLancesLivres() != null ? dto.getLancesLivres() : 0);
 
-        if (dto.getCampus().equals(partida.getCampus1())) {
+        if (dto.getCampus().equals(partida.getCampus1().getNome())) {
             partida.setPlacarCampus1(partida.getPlacarCampus1() + pontos);
         } else {
             partida.setPlacarCampus2(partida.getPlacarCampus2() + pontos);

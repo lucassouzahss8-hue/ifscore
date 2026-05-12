@@ -26,20 +26,22 @@ public class AlunoController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<AlunoEntity> findAll() {
-        return alunoService.findAll();
+    public List<AlunoResponseDto> findAll() {
+        return alunoService.findAll().stream()
+                .map(AlunoResponseDto::fromEntity)
+                .toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AlunoEntity create(@RequestBody AlunoDto dto) {
-        return alunoService.save(dto);
+    public AlunoResponseDto create(@RequestBody AlunoDto dto) {
+        return AlunoResponseDto.fromEntity(alunoService.save(dto));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AlunoEntity update(@PathVariable UUID id, @RequestBody AlunoDto dto) {
-        return alunoService.updateAluno(id, dto);
+    public AlunoResponseDto update(@PathVariable UUID id, @RequestBody AlunoDto dto) {
+        return AlunoResponseDto.fromEntity(alunoService.updateAluno(id, dto));
     }
 
     @DeleteMapping("/{id}")

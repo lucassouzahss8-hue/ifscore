@@ -70,6 +70,11 @@ public class CampusService {
         ));
     }
 
+    public CampusEntity findByNome(String nome) {
+        return campusRepository.findByNome(nome)
+                .orElseThrow(() -> new NotFoundException("Campus '" + nome + "' não encontrado"));
+    }
+
     public void validarCampus(String nome) {
         if (!campusRepository.existsByNome(nome)) {
             throw new RuntimeException("Campus '" + nome + "' não é um campus válido do IFPR");

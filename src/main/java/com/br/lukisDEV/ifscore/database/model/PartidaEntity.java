@@ -20,9 +20,13 @@ public class PartidaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String campus1;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus1_id")
+    private CampusEntity campus1;
 
-    private String campus2;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus2_id")
+    private CampusEntity campus2;
 
     @Builder.Default
     private Integer placarCampus1 = 0;
@@ -40,12 +44,12 @@ public class PartidaEntity {
     @Builder.Default
     private Boolean finalizada = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modalidade_id")
     @JsonBackReference
     private ModalidadeEntity modalidade;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rodada_id")
     private RodadaEntity rodadaEntity;
 }

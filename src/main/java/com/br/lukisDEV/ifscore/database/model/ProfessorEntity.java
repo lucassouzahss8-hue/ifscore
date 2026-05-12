@@ -18,8 +18,11 @@ public class ProfessorEntity {
     private UUID id;
     @Column(nullable = false)
     private String nome;
-    @Column(nullable = false)
-    private String campus;
+
+    @ManyToOne
+    @JoinColumn(name = "campus_id", nullable = false)
+    private CampusEntity campus;
+
     @Column (nullable = false)
     private String email;
 }

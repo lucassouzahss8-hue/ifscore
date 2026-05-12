@@ -23,15 +23,20 @@ public class ModalidadeEntity {
     private UUID id;
     @Column(nullable = false)
     private String nome;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evento_id")
     @JsonBackReference
     private EventoEntity evento;
 
-    @ElementCollection
-    private List<String> campus;
+    @ManyToMany
+    @JoinTable(
+            name = "modalidade_campus",
+            joinColumns = @JoinColumn(name = "modalidade_id"),
+            inverseJoinColumns = @JoinColumn(name = "campus_id")
+    )
+    private java.util.Set<CampusEntity> campus = new java.util.HashSet<>();
 
     @OneToMany(mappedBy = "modalidade", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<PartidaEntity> partidas = new ArrayList<>();
+    private java.util.Set<PartidaEntity> partidas = new java.util.HashSet<>();
 }
