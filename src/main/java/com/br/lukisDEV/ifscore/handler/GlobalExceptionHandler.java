@@ -1,9 +1,6 @@
 package com.br.lukisDEV.ifscore.handler;
 
-import com.br.lukisDEV.ifscore.exception.EmailAlreadyExistsException;
-import com.br.lukisDEV.ifscore.exception.ErrorResponseDto;
-import com.br.lukisDEV.ifscore.exception.NotFoundException;
-import com.br.lukisDEV.ifscore.exception.PasswordInvalidException;
+import com.br.lukisDEV.ifscore.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
-import java.rmi.AccessException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -59,8 +55,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponseDto> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<ErrorResponseDto> handleEmailAlreadyExistsException(EmailException ex) {
         ErrorResponseDto response = ErrorResponseDto.builder()
                 .message(ex.getMessage())
                 .status(HttpStatus.CONFLICT.value())
@@ -95,6 +91,16 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(CampusNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleCampusNotFoundException(CampusNotFoundException ex) {
+        ErrorResponseDto response = ErrorResponseDto.builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.NOT_FOUND.value())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
 }

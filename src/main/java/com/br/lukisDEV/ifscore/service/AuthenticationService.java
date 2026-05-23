@@ -10,6 +10,8 @@ import com.br.lukisDEV.ifscore.dto.LoginRequestDto;
 import com.br.lukisDEV.ifscore.dto.RegisterRequestDto;
 import com.br.lukisDEV.ifscore.dto.TokenResponseDto;
 import com.br.lukisDEV.ifscore.enums.RoleTypeEnum;
+import com.br.lukisDEV.ifscore.exception.CampusNotFoundException;
+import com.br.lukisDEV.ifscore.exception.EmailException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.coyote.BadRequestException;
@@ -35,21 +37,20 @@ public class AuthenticationService {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    @SneakyThrows
-    public void register(RegisterRequestDto dto) {
-        ProfessorEntity professor = professorRepository.findByEmail(dto.getEmail())
-                .orElse(null);
-
-        if (professor != null) {
-            throw new BadRequestException("Professor ja cadastrado com este email");
+    public void register(RegisterRequestDto dto) throws EmailException, CampusNotFoundException {
+        if (professorRepository.existsByEmail(dto.getEmail())) {
+            throw new EmailException("Já existe um professor cadastrado com este email");
         }
-
         CampusEntity campus = campusService.findByNome(dto.getCampus());
+        if (campus == null) {
+            throw new CampusNotFoundException("Não existe um campus cadastrado com este nome");
+        }
 
         RolesEntity role = rolesRepository.findByNome(RoleTypeEnum.ROLE_PROFESSOR.name())
                 .orElseGet(() -> rolesRepository.save(RolesEntity.builder()
                         .nome(RoleTypeEnum.ROLE_PROFESSOR.name())
                         .build()));
+
         professorRepository.save(ProfessorEntity.builder()
                 .nome(dto.getNome())
                 .campus(campus)
