@@ -62,14 +62,15 @@ public class AuthenticationService {
 
     public TokenResponseDto login(LoginRequestDto dto) throws Exception {
         try {
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha()));
-            String token = tokenProvider.gerarToken(auth);
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha()));
+            String token = tokenProvider.gerarToken(authentication);
 
-        return new TokenResponseDto(token, expirationTime);
-        } catch (BadCredentialsException e) {
-            throw new BadRequestException("Credenciais Invalidas");
+            return new TokenResponseDto(token, expirationTime);
+
+        } catch (BadCredentialsException ex) {
+            throw new BadCredentialsException(ex.getMessage());
         } catch (Exception e) {
-            throw e;
+            throw new Exception("Internal Error", e);
         }
     }
 }
