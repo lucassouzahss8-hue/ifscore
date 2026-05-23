@@ -28,6 +28,6 @@ build/
 
 .vscode/
 
-.application.yaml
-.application-dev.yaml
+application.yaml
+application-dev.yaml
 .env
