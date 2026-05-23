@@ -32,7 +32,7 @@ public class AlunoService {
         AlunoEntity aluno = alunoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Aluno nao encontrado"));
 
-        List<EstatisticaEntity> estatisticas = estatisticaRepository.findByAluno_Id(id);
+        List<EstatisticaEntity> estatisticas = estatisticaRepository.findByAlunoId(id);
 
         int totalPontos = estatisticas.stream()
                 .mapToInt(e -> {

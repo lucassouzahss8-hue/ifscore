@@ -31,5 +31,6 @@ public class EventoEntity {
 
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<ModalidadeEntity> modalidades;
+    @Builder.Default
+    private java.util.Set<ModalidadeEntity> modalidades = new java.util.HashSet<>();
 }
