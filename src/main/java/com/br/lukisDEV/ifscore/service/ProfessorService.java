@@ -52,4 +52,7 @@ public class ProfessorService {
         }
         professorRepository.deleteById(id);
     }
+    public ProfessorEntity findByEmail(String email) {
+        return professorRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Professor com o email " + email + " não encontrado"));}
 }

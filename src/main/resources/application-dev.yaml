@@ -11,3 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+jwt:
+  expiration: ${JWT_EXPIRATION}
+  key: ${JWT_KEY}
