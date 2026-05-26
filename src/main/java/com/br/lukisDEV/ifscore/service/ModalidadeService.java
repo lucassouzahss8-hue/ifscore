@@ -1,16 +1,13 @@
 package com.br.lukisDEV.ifscore.service;
 
 import com.br.lukisDEV.ifscore.database.model.CampusEntity;
-import com.br.lukisDEV.ifscore.database.model.EstatisticaEntity;
 import com.br.lukisDEV.ifscore.database.model.EventoEntity;
 import com.br.lukisDEV.ifscore.database.model.ModalidadeEntity;
 import com.br.lukisDEV.ifscore.database.model.PartidaEntity;
 import com.br.lukisDEV.ifscore.database.repository.IEventoRepository;
 import com.br.lukisDEV.ifscore.database.repository.IModalidadeRepository;
 import com.br.lukisDEV.ifscore.database.repository.IPartidaRepository;
-import com.br.lukisDEV.ifscore.dto.EstatisticaDto;
 import com.br.lukisDEV.ifscore.dto.ModalidadeDto;
-import com.br.lukisDEV.ifscore.dto.PlacarDto;
 import com.br.lukisDEV.ifscore.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +28,6 @@ public class ModalidadeService {
     private final CampusService campusService;
     private final ModalidadeClassificacaoService classificacaoService;
     private final ModalidadeChaveamentoService chaveamentoService;
-    private final ModalidadePlacarService placarService;
 
     public List<ModalidadeEntity> findAll() {
         return modalidadeRepository.findAll();
@@ -53,12 +49,14 @@ public class ModalidadeService {
                 .partidas(new ArrayList<>())
                 .build();
 
-        modalidade = modalidadeRepository.save(modalidade);
+        final ModalidadeEntity modalidadeSalva = modalidadeRepository.save(modalidade);
 
-        List<PartidaEntity> partidas = chaveamentoService.gerarPartidasDeGrupo(campusEntities, modalidade);
+        List<PartidaEntity> partidas = chaveamentoService.gerarPartidasDeGrupo(campusEntities, modalidadeSalva);
         partidaRepository.saveAll(partidas);
+        
+        modalidadeSalva.getPartidas().addAll(partidas);
 
-        return modalidade;
+        return modalidadeSalva;
     }
 
     public List<PartidaEntity> listarPartidas(UUID modalidadeId) {
@@ -81,21 +79,6 @@ public class ModalidadeService {
     @Transactional
     public PartidaEntity gerarFinal(UUID modalidadeId) {
         return chaveamentoService.gerarFinal(modalidadeId, listarPartidas(modalidadeId));
-    }
-
-    @Transactional
-    public PartidaEntity somarPontos(UUID partidaId, PlacarDto dto) {
-        return placarService.somarPontos(partidaId, dto);
-    }
-
-    @Transactional
-    public PartidaEntity finalizarPartida(UUID partidaId) {
-        return placarService.finalizarPartida(partidaId);
-    }
-
-    @Transactional
-    public EstatisticaEntity atualizarEstatisticas(UUID partidaId, EstatisticaDto dto) {
-        return placarService.atualizarEstatisticas(partidaId, dto);
     }
 
     public void delete(UUID id) {

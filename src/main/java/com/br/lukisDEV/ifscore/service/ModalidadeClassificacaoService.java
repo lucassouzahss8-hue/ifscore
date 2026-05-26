@@ -98,6 +98,17 @@ public class ModalidadeClassificacaoService {
         for (String time : jogos.keySet()) {
             int saldo = pontosPro.get(time) - pontosContra.get(time);
 
+            int pontos = 0;
+            if (vitorias.getOrDefault(time, 0) > 0 || derrotas.getOrDefault(time, 0) > 0) {
+
+                pontos = (vitorias.getOrDefault(time, 0) * 2) + derrotas.getOrDefault(time, 0);
+
+                int totalJogos = jogos.getOrDefault(time, 0);
+                int jogosComResultado = vitorias.getOrDefault(time, 0) + derrotas.getOrDefault(time, 0);
+                int empates = totalJogos - jogosComResultado;
+                pontos += empates; 
+            }
+
             tabela.add(Map.of(
                     "time", time,
                     "jogos", jogos.get(time),
@@ -106,7 +117,7 @@ public class ModalidadeClassificacaoService {
                     "pontosPro", pontosPro.get(time),
                     "pontosContra", pontosContra.get(time),
                     "saldo", saldo,
-                    "pontos", vitorias.getOrDefault(time, 0) * 3
+                    "pontos", pontos
             ));
         }
 

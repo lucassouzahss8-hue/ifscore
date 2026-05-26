@@ -36,6 +36,16 @@ public class SecurityConfiguration {
                         }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/evento/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "v1/modalidade/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.POST, "/v1/evento/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.GET, "/v1/modalidade/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/chaveamento/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.GET, "/v1/classificacao/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/v1/placar/**/").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.POST, "/v1/aluno/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.GET, "/v1/aluno/**").authenticated()
+
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

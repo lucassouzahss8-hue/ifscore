@@ -13,9 +13,6 @@ import lombok.*;
 public class RegisterRequestDto {
     @NotBlank
     private String nome;
-    @NotBlank
-    private String campus;
-    @NotBlank
     @Email
     private String email;
     @NotBlank

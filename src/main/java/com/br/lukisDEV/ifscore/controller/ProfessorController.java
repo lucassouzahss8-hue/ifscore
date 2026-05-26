@@ -25,12 +25,6 @@ public class ProfessorController {
         return professorService.findAll().stream().map(ProfessorResponseDto::from).toList();
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ProfessorResponseDto saveProfessor(@Valid @RequestBody ProfessorDto professorDto){
-        return ProfessorResponseDto.from(professorService.save(professorDto));
-    }
-
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProfessorResponseDto updateProfessor(@PathVariable UUID id, @Valid @RequestBody ProfessorDto professorDto){

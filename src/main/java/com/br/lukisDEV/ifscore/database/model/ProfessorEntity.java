@@ -26,16 +26,11 @@ public class ProfessorEntity implements UserDetails {
     @Column (nullable = false)
     private String senha;
 
-    @ManyToOne
-    @JoinColumn(name = "campus_id", nullable = false)
-    private CampusEntity campus;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "professor_roles",
         joinColumns = @JoinColumn(name = "professor_id"),
                     inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RolesEntity> roles = new HashSet<>();
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

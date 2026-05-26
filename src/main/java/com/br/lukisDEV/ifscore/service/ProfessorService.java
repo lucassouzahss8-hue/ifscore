@@ -16,17 +16,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProfessorService {
     private final IProfessorRepository professorRepository;
-    private final CampusService campusService;
 
     public List<ProfessorEntity> findAll(){
         return professorRepository.findAll();
     }
     public ProfessorEntity save(ProfessorDto professorDto){
-        CampusEntity campus = campusService.findByNome(professorDto.getCampus());
 
         return professorRepository.save(ProfessorEntity.builder()
                         .nome(professorDto.getNome())
-                        .campus(campus)
                         .email(professorDto.getEmail())
                 .build());
     }
@@ -34,13 +31,10 @@ public class ProfessorService {
     @Transactional
     public ProfessorEntity updateProfessor(UUID id, ProfessorDto professorDto){
 
-        CampusEntity campus = campusService.findByNome(professorDto.getCampus());
-
         ProfessorEntity professor = professorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Professor nao encontrado"));
 
                 professor.setNome(professorDto.getNome());
-                professor.setCampus(campus);
                 professor.setEmail(professorDto.getEmail());
 
         return professorRepository.save(professor);

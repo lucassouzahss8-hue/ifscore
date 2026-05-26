@@ -93,14 +93,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    @ExceptionHandler(CampusNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleCampusNotFoundException(CampusNotFoundException ex) {
-        ErrorResponseDto response = ErrorResponseDto.builder()
-                .message(ex.getMessage())
-                .status(HttpStatus.NOT_FOUND.value())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
 }

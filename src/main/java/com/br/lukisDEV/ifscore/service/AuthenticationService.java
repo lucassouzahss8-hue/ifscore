@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.BeanDefinitionDsl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.Role;
 import java.util.Set;
 
 @Service
@@ -37,13 +39,17 @@ public class AuthenticationService {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public void register(RegisterRequestDto dto) throws EmailException, CampusNotFoundException {
+    public void register(RegisterRequestDto dto) throws EmailException {
         if (professorRepository.existsByEmail(dto.getEmail())) {
             throw new EmailException("Já existe um professor cadastrado com este email");
         }
-        CampusEntity campus = campusService.findByNome(dto.getCampus());
-        if (campus == null) {
-            throw new CampusNotFoundException("Não existe um campus cadastrado com este nome");
+        String email =  dto.getEmail();
+
+        RoleTypeEnum roles;
+        if (email.endsWith("@ifpr.edu.br")){
+            roles = RoleTypeEnum.ROLE_PROFESSOR;
+        } else {
+            throw new EmailException("Sem permissão para realizar a ação");
         }
 
         RolesEntity role = rolesRepository.findByNome(RoleTypeEnum.ROLE_PROFESSOR.name())
@@ -53,7 +59,6 @@ public class AuthenticationService {
 
         professorRepository.save(ProfessorEntity.builder()
                 .nome(dto.getNome())
-                .campus(campus)
                 .email(dto.getEmail())
                 .roles(Set.of(role))
                 .senha(passwordEncoder.encode(dto.getSenha()))
