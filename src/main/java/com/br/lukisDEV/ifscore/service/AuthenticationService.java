@@ -10,13 +10,9 @@ import com.br.lukisDEV.ifscore.dto.LoginRequestDto;
 import com.br.lukisDEV.ifscore.dto.RegisterRequestDto;
 import com.br.lukisDEV.ifscore.dto.TokenResponseDto;
 import com.br.lukisDEV.ifscore.enums.RoleTypeEnum;
-import com.br.lukisDEV.ifscore.exception.CampusNotFoundException;
 import com.br.lukisDEV.ifscore.exception.EmailException;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.support.BeanDefinitionDsl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.Role;
 import java.util.Set;
 
 @Service

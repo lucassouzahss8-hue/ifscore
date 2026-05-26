@@ -29,9 +29,6 @@ public class EventoService {
 
     @Transactional
     public EventoEntity criarEvento(EventoDto dto) {
-
-        campusService.validarCampus(dto.getLocal());
-
         EventoEntity evento = new EventoEntity();
 
         evento.setNome(dto.getNome());
@@ -43,8 +40,6 @@ public class EventoService {
 
     @Transactional
     public EventoEntity updateEvento(UUID id, EventoDto dto) {
-
-        campusService.validarCampus(dto.getLocal());
 
         EventoEntity evento = findById(id);
 
