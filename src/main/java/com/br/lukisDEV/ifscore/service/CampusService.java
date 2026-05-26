@@ -51,32 +51,8 @@ public class CampusService {
         );
     }
 
-    @Transactional
-    public void seedCampuses() {
-        if (campusRepository.count() > 0) return;
-
-        List<String> campuses = List.of(
-                "Assis Chateaubriand", "Astorga", "Barracão", "Campo Largo", "Capanema",
-                "Cascavel", "Colombo", "Colorado", "Coronel Vivida", "Curitiba",
-                "Foz do Iguaçu", "Goioerê", "Irati", "Ivaiporã", "Jacarezinho",
-                "Jaguariaíva", "Londrina", "Palmas", "Paranaguá", "Paranavaí",
-                "Pinhais", "Pitanga", "Ponta Grossa", "Quedas do Iguaçu",
-                "Telêmaco Borba", "Umuarama", "União da Vitória"
-        );
-
-        campuses.forEach(nome -> campusRepository.save(
-                CampusEntity.builder().nome(nome).regiao("PR").build()
-        ));
-    }
-
     public CampusEntity findByNome(String nome) {
         return campusRepository.findByNome(nome)
                 .orElseThrow(() -> new NotFoundException("Campus '" + nome + "' nao encontrado"));
-    }
-
-    public void validarCampus(String nome) {
-        if (!campusRepository.existsByNome(nome)) {
-            throw new IllegalArgumentException("Campus '" + nome + "' nao e um campus valido do IFPR");
-        }
     }
 }

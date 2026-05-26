@@ -16,11 +16,4 @@ public class IfscoreApplication {
 		SpringApplication.run(IfscoreApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(CampusService campusService) {
-		return args -> {
-			campusService.seedCampuses();
-		};
-	}
-
 }
