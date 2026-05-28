@@ -16,9 +16,7 @@ public class AlunoDto {
     @NotBlank
     private String nome;
     @NotBlank
-    private String campus;
-
-    private Integer numeroRegata;
-
-    private List<UUID> modalidadesIds;
+    private String email;
+    @NotBlank
+    private String senha;
 }

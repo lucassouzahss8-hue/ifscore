@@ -1,9 +1,10 @@
 package com.br.lukisDEV.ifscore.service;
 
 import com.br.lukisDEV.ifscore.config.TokenProvider;
-import com.br.lukisDEV.ifscore.database.model.CampusEntity;
+import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
 import com.br.lukisDEV.ifscore.database.model.ProfessorEntity;
 import com.br.lukisDEV.ifscore.database.model.RolesEntity;
+import com.br.lukisDEV.ifscore.database.repository.IAlunoRepository;
 import com.br.lukisDEV.ifscore.database.repository.IProfessorRepository;
 import com.br.lukisDEV.ifscore.database.repository.IRolesRepository;
 import com.br.lukisDEV.ifscore.dto.LoginRequestDto;
@@ -11,6 +12,7 @@ import com.br.lukisDEV.ifscore.dto.RegisterRequestDto;
 import com.br.lukisDEV.ifscore.dto.TokenResponseDto;
 import com.br.lukisDEV.ifscore.enums.RoleTypeEnum;
 import com.br.lukisDEV.ifscore.exception.EmailException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,50 +29,68 @@ import java.util.Set;
 public class AuthenticationService {
     private final IProfessorRepository professorRepository;
     private final IRolesRepository rolesRepository;
-    private final CampusService campusService;
+    private final IAlunoRepository alunoRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     @Value("${jwt.expiration}")
     private long expirationTime;
 
+
+    @Transactional
     public void register(RegisterRequestDto dto) throws EmailException {
-        if (professorRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailException("Já existe um professor cadastrado com este email");
-        }
-        String email =  dto.getEmail();
-
-        RoleTypeEnum roles;
-        if (email.endsWith("@ifpr.edu.br")){
-            roles = RoleTypeEnum.ROLE_PROFESSOR;
+        String email = dto.getEmail();
+        RoleTypeEnum roleType;
+        if (email.endsWith("@ifpr.edu.br")) {
+            roleType = RoleTypeEnum.ROLE_PROFESSOR;
+        } else if (email.endsWith("@gmail.com")) {
+            roleType = RoleTypeEnum.ROLE_ALUNO;
         } else {
-            throw new EmailException("Sem permissão para realizar a ação");
+            throw new  IllegalArgumentException("Email não aceito");
         }
 
-        RolesEntity role = rolesRepository.findByNome(RoleTypeEnum.ROLE_PROFESSOR.name())
+
+        if (professorRepository.existsByEmail(email) || alunoRepository.existsByEmail(email)) {
+            throw new EmailException("Já existe um usuario cadastrado com este email");
+        }
+
+        RolesEntity role = rolesRepository.findByNome(roleType.name())
                 .orElseGet(() -> rolesRepository.save(RolesEntity.builder()
-                        .nome(RoleTypeEnum.ROLE_PROFESSOR.name())
+                        .nome(roleType.name())
                         .build()));
+        if (roleType == RoleTypeEnum.ROLE_PROFESSOR) {
+            professorRepository.save(ProfessorEntity.builder()
+                    .nome(dto.getNome())
+                    .email(dto.getEmail())
+                    .roles(Set.of(role))
+                    .senha(passwordEncoder.encode(dto.getSenha()))
+                    .build());
+        } else {
+            if (alunoRepository.existsByEmail(email)) {
+                throw new EmailException("Já existe aluno cadastrado com este email");
+            }
+            alunoRepository.save(AlunoEntity.builder()
+                    .nome(dto.getNome())
+                    .email(dto.getEmail())
+                    .roles(Set.of(role))
+                    .senha(passwordEncoder.encode(dto.getSenha()))
+                    .build());
 
-        professorRepository.save(ProfessorEntity.builder()
-                .nome(dto.getNome())
-                .email(dto.getEmail())
-                .roles(Set.of(role))
-                .senha(passwordEncoder.encode(dto.getSenha()))
-                .build());
-    }
-
-    public TokenResponseDto login(LoginRequestDto dto) throws Exception {
-        try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha()));
-            String token = tokenProvider.gerarToken(authentication);
-
-            return new TokenResponseDto(token, expirationTime);
-
-        } catch (BadCredentialsException ex) {
-            throw new BadCredentialsException(ex.getMessage());
-        } catch (Exception e) {
-            throw new Exception("Internal Error", e);
         }
     }
-}
+
+
+        public TokenResponseDto login (LoginRequestDto dto) throws Exception {
+            try {
+                Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha()));
+                String token = tokenProvider.gerarToken(authentication);
+
+                return new TokenResponseDto(token, expirationTime);
+
+            } catch (BadCredentialsException ex) {
+                throw new BadCredentialsException(ex.getMessage());
+            } catch (Exception e) {
+                throw new Exception("Internal Error", e);
+            }
+        }
+    }

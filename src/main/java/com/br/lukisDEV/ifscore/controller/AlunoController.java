@@ -31,18 +31,6 @@ public class AlunoController {
         return alunoService.findAll().stream().map(AlunoResponseDto::from).toList();
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public AlunoResponseDto create(@Valid @RequestBody AlunoDto dto) {
-        return AlunoResponseDto.from(alunoService.save(dto));
-    }
-
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public AlunoResponseDto update(@PathVariable UUID id, @Valid @RequestBody AlunoDto dto) {
-        return AlunoResponseDto.from(alunoService.updateAluno(id, dto));
-    }
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {

@@ -45,57 +45,12 @@ public class AlunoService {
 
         return AlunoPerfilDto.builder()
                 .nome(aluno.getNome())
-                .campus(aluno.getCampus().getNome())
-                .numeroRegata(aluno.getNumeroRegata())
                 .pontuacao(totalPontos)
                 .build();
     }
 
     public List<AlunoEntity> findAll() {
         return alunoRepository.findAll();
-    }
-
-    @Transactional
-    public AlunoEntity save(AlunoDto dto) {
-
-        CampusEntity campus = campusService.findByNome(dto.getCampus());
-
-        Set<ModalidadeEntity> modalidades = new HashSet<>();
-
-        if (dto.getModalidadesIds() != null) {
-            modalidades = new HashSet<>(modalidadeRepository.findAllById(dto.getModalidadesIds()));
-        }
-
-        AlunoEntity aluno = AlunoEntity.builder()
-                .nome(dto.getNome())
-                .campus(campus)
-                .numeroRegata(dto.getNumeroRegata())
-                .modalidades(modalidades)
-                .build();
-
-        return alunoRepository.save(aluno);
-    }
-
-    @Transactional
-    public AlunoEntity updateAluno(UUID id, AlunoDto dto) {
-
-        CampusEntity campus = campusService.findByNome(dto.getCampus());
-
-        AlunoEntity aluno = alunoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Aluno nao encontrado"));
-
-        aluno.setNome(dto.getNome());
-        aluno.setCampus(campus);
-        aluno.setNumeroRegata(dto.getNumeroRegata());
-
-        if (dto.getModalidadesIds() != null) {
-            Set<ModalidadeEntity> modalidades =
-                    new HashSet<>(modalidadeRepository.findAllById(dto.getModalidadesIds()));
-
-            aluno.setModalidades(modalidades);
-        }
-
-        return alunoRepository.save(aluno);
     }
 
     @Transactional

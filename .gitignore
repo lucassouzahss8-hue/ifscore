@@ -31,3 +31,6 @@ build/
 application.yaml
 application-dev.yaml
 .env
+
+node_modules/
+frontend/dist/
