@@ -16,7 +16,5 @@ public class AlunoDto {
     @NotBlank
     private String nome;
     @NotBlank
-    private String email;
-    @NotBlank
-    private String senha;
+    private Integer numero;
 }

@@ -8,13 +8,13 @@ import java.util.UUID;
 public record AlunoResponseDto(
         UUID id,
         String nome,
-        String email
+        Integer numero
         ) {
     public static AlunoResponseDto from(AlunoEntity aluno) {
         return new AlunoResponseDto(
                 aluno.getId(),
                 aluno.getNome(),
-                aluno.getEmail()
+                aluno.getNumero()
         );
     }
 }
