@@ -3,6 +3,7 @@ package com.br.lukisDEV.ifscore.service;
 import com.br.lukisDEV.ifscore.database.model.ProfessorEntity;
 import com.br.lukisDEV.ifscore.database.repository.IAlunoRepository;
 import com.br.lukisDEV.ifscore.database.repository.IProfessorRepository;
+import com.br.lukisDEV.ifscore.database.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +17,7 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final IProfessorRepository professorRepository;
-    private final IAlunoRepository alunoRepository;
+    private final IUserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -24,8 +25,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (professor.isPresent()) {
             return (UserDetails) professor.get();
         }
-        return alunoRepository.findByEmail(username)
-                .map(alunoEntity -> (UserDetails) alunoEntity)
+        return userRepository.findByEmail(username)
+                .map(userEntity -> (UserDetails) userEntity)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email " + username));
     }
 }

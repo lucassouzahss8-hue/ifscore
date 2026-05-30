@@ -4,9 +4,11 @@ import com.br.lukisDEV.ifscore.config.TokenProvider;
 import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
 import com.br.lukisDEV.ifscore.database.model.ProfessorEntity;
 import com.br.lukisDEV.ifscore.database.model.RolesEntity;
+import com.br.lukisDEV.ifscore.database.model.UserEntity;
 import com.br.lukisDEV.ifscore.database.repository.IAlunoRepository;
 import com.br.lukisDEV.ifscore.database.repository.IProfessorRepository;
 import com.br.lukisDEV.ifscore.database.repository.IRolesRepository;
+import com.br.lukisDEV.ifscore.database.repository.IUserRepository;
 import com.br.lukisDEV.ifscore.dto.LoginRequestDto;
 import com.br.lukisDEV.ifscore.dto.RegisterRequestDto;
 import com.br.lukisDEV.ifscore.dto.TokenResponseDto;
@@ -30,6 +32,7 @@ public class AuthenticationService {
     private final IProfessorRepository professorRepository;
     private final IRolesRepository rolesRepository;
     private final IAlunoRepository alunoRepository;
+    private final IUserRepository  userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
@@ -44,13 +47,13 @@ public class AuthenticationService {
         if (email.endsWith("@ifpr.edu.br")) {
             roleType = RoleTypeEnum.ROLE_PROFESSOR;
         } else if (email.endsWith("@gmail.com")) {
-            roleType = RoleTypeEnum.ROLE_ALUNO;
+            roleType = RoleTypeEnum.ROLE_USER;
         } else {
             throw new  IllegalArgumentException("Email não aceito");
         }
 
 
-        if (professorRepository.existsByEmail(email) || alunoRepository.existsByEmail(email)) {
+        if (professorRepository.existsByEmail(email) || userRepository.existsByEmail(email)) {
             throw new EmailException("Já existe um usuario cadastrado com este email");
         }
 
@@ -66,10 +69,10 @@ public class AuthenticationService {
                     .senha(passwordEncoder.encode(dto.getSenha()))
                     .build());
         } else {
-            if (alunoRepository.existsByEmail(email)) {
+            if (userRepository.existsByEmail(email)) {
                 throw new EmailException("Já existe aluno cadastrado com este email");
             }
-            alunoRepository.save(AlunoEntity.builder()
+            userRepository.save(UserEntity.builder()
                     .nome(dto.getNome())
                     .email(dto.getEmail())
                     .roles(Set.of(role))
