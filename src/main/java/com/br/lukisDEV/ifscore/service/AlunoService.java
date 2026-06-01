@@ -9,6 +9,7 @@ import com.br.lukisDEV.ifscore.database.repository.IEstatisticaRepository;
 import com.br.lukisDEV.ifscore.database.repository.IModalidadeRepository;
 import com.br.lukisDEV.ifscore.dto.AlunoDto;
 import com.br.lukisDEV.ifscore.dto.AlunoPerfilDto;
+import com.br.lukisDEV.ifscore.dto.AlunoResponseDto;
 import com.br.lukisDEV.ifscore.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,13 @@ public class AlunoService {
                 .build();
     }
 
+    public AlunoResponseDto salvarAluno(AlunoDto dto) {
+    AlunoEntity aluno = new AlunoEntity();
+    aluno.setNome(dto.getNome());
+    aluno.setNumero(dto.getNumero());
+    return toResponse(alunoRepository.save(aluno));
+    }
+
     public List<AlunoEntity> findAll() {
         return alunoRepository.findAll();
     }
@@ -61,5 +69,13 @@ public class AlunoService {
         }
 
         alunoRepository.deleteById(id);
+    }
+
+    public AlunoResponseDto toResponse(AlunoEntity aluno) {
+        return new AlunoResponseDto(
+                aluno.getId(),
+                aluno.getNome(),
+                aluno.getNumero()
+        );
     }
 }

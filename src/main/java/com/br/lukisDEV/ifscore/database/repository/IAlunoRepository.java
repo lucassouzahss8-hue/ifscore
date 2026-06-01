@@ -9,7 +9,4 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IAlunoRepository extends JpaRepository<AlunoEntity, UUID> {
-    Optional<AlunoEntity> findByEmail(String email);
-
-    boolean existsByEmail(@NotBlank @Email String email);
 }

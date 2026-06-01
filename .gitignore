@@ -34,3 +34,5 @@ application-dev.yaml
 
 node_modules/
 frontend/dist/
+docker-compose.yaml
+Dockerfile

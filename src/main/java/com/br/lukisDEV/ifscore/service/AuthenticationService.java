@@ -70,7 +70,7 @@ public class AuthenticationService {
                     .build());
         } else {
             if (userRepository.existsByEmail(email)) {
-                throw new EmailException("Já existe aluno cadastrado com este email");
+                throw new EmailException("Já existe um usuario cadastrado com este email");
             }
             userRepository.save(UserEntity.builder()
                     .nome(dto.getNome())
