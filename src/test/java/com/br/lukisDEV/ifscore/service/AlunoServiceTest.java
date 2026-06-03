@@ -45,19 +45,34 @@ class AlunoServiceTest {
     }
 
     @Test
-    void getAlunoPerfil_WhenAlunoExists_ShouldReturnPerfilWithPontuacao() {
+    void getAlunoPerfil_WhenAlunoExists_ShouldReturnPerfilWithAllStats() {
+        com.br.lukisDEV.ifscore.database.model.CampusEntity campus = com.br.lukisDEV.ifscore.database.model.CampusEntity.builder()
+                .nome("Campus Teste")
+                .build();
+
         EstatisticaEntity est1 = EstatisticaEntity.builder()
+                .campus(campus)
                 .bolas2(2) // 4 pts
                 .bolas3(1) // 3 pts
                 .lancesLivres(1) // 1 pt
+                .cestas(3)
+                .rebotes(2)
+                .assistencias(1)
+                .faltas(1)
                 .build();
         
         EstatisticaEntity est2 = EstatisticaEntity.builder()
+                .campus(campus)
                 .bolas2(1) // 2 pts
                 .bolas3(0) // 0 pts
                 .lancesLivres(2) // 2 pts
+                .cestas(1)
+                .rebotes(3)
+                .assistencias(2)
+                .faltas(0)
                 .build();
 
+        alunoEntity.setNumero(10);
         when(alunoRepository.findById(alunoId)).thenReturn(Optional.of(alunoEntity));
         when(estatisticaRepository.findByAlunoId(alunoId)).thenReturn(List.of(est1, est2));
 
@@ -65,7 +80,17 @@ class AlunoServiceTest {
 
         assertNotNull(perfil);
         assertEquals("João Silva", perfil.getNome());
+        assertEquals("Campus Teste", perfil.getCampus());
+        assertEquals(10, perfil.getNumeroRegata());
         assertEquals(12, perfil.getPontuacao()); // 4+3+1 + 2+0+2 = 12
+        assertEquals(4, perfil.getCestas());
+        assertEquals(3, perfil.getBolas2());
+        assertEquals(1, perfil.getBolas3());
+        assertEquals(3, perfil.getLancesLivres());
+        assertEquals(5, perfil.getRebotes());
+        assertEquals(3, perfil.getAssistencias());
+        assertEquals(1, perfil.getFaltas());
+        
         verify(alunoRepository).findById(alunoId);
         verify(estatisticaRepository).findByAlunoId(alunoId);
     }
