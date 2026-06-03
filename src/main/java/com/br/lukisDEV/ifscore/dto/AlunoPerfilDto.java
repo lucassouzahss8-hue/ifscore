@@ -12,4 +12,11 @@ public class AlunoPerfilDto {
     private String campus;
     private Integer numeroRegata;
     private Integer pontuacao;
+    private Integer cestas;
+    private Integer bolas2;
+    private Integer bolas3;
+    private Integer lancesLivres;
+    private Integer rebotes;
+    private Integer assistencias;
+    private Integer faltas;
 }

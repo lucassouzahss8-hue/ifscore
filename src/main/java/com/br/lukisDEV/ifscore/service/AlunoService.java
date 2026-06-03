@@ -35,18 +35,46 @@ public class AlunoService {
 
         List<EstatisticaEntity> estatisticas = estatisticaRepository.findByAlunoId(id);
 
-        int totalPontos = estatisticas.stream()
-                .mapToInt(e -> {
-                    int p2 = e.getBolas2() != null ? e.getBolas2() : 0;
-                    int p3 = e.getBolas3() != null ? e.getBolas3() : 0;
-                    int ll = e.getLancesLivres() != null ? e.getLancesLivres() : 0;
-                    return (p2 * 2) + (p3 * 3) + ll;
-                })
-                .sum();
+        int totalPontos = 0;
+        int totalCestas = 0;
+        int totalBolas2 = 0;
+        int totalBolas3 = 0;
+        int totalLancesLivres = 0;
+        int totalRebotes = 0;
+        int totalAssistencias = 0;
+        int totalFaltas = 0;
+        String campusNome = "N/A";
+
+        if (!estatisticas.isEmpty()) {
+            campusNome = estatisticas.get(0).getCampus().getNome();
+            for (EstatisticaEntity e : estatisticas) {
+                int p2 = e.getBolas2() != null ? e.getBolas2() : 0;
+                int p3 = e.getBolas3() != null ? e.getBolas3() : 0;
+                int ll = e.getLancesLivres() != null ? e.getLancesLivres() : 0;
+                
+                totalBolas2 += p2;
+                totalBolas3 += p3;
+                totalLancesLivres += ll;
+                totalPontos += (p2 * 2) + (p3 * 3) + ll;
+                totalCestas += (e.getCestas() != null ? e.getCestas() : 0);
+                totalRebotes += (e.getRebotes() != null ? e.getRebotes() : 0);
+                totalAssistencias += (e.getAssistencias() != null ? e.getAssistencias() : 0);
+                totalFaltas += (e.getFaltas() != null ? e.getFaltas() : 0);
+            }
+        }
 
         return AlunoPerfilDto.builder()
                 .nome(aluno.getNome())
+                .campus(campusNome)
+                .numeroRegata(aluno.getNumero())
                 .pontuacao(totalPontos)
+                .cestas(totalCestas)
+                .bolas2(totalBolas2)
+                .bolas3(totalBolas3)
+                .lancesLivres(totalLancesLivres)
+                .rebotes(totalRebotes)
+                .assistencias(totalAssistencias)
+                .faltas(totalFaltas)
                 .build();
     }
 
