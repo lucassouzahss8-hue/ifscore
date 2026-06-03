@@ -19,6 +19,12 @@ public class CampusService {
     public List<CampusEntity> findAll(){
         return campusRepository.findAll();
     }
+
+    public CampusEntity findById(UUID id) {
+        return campusRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Campus nao encontrado"));
+    }
+
     public void save(CampusDto campusDto){
         campusRepository.save(CampusEntity.builder()
                 .nome(campusDto.getNome())

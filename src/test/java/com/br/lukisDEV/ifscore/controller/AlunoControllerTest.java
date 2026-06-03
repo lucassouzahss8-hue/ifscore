@@ -1,18 +1,25 @@
 package com.br.lukisDEV.ifscore.controller;
 
 import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
+import com.br.lukisDEV.ifscore.database.model.CampusEntity;
+import com.br.lukisDEV.ifscore.dto.AlunoDto;
 import com.br.lukisDEV.ifscore.dto.AlunoPerfilDto;
+import com.br.lukisDEV.ifscore.dto.AlunoResponseDto;
+import com.br.lukisDEV.ifscore.dto.CampusResponseDto;
 import com.br.lukisDEV.ifscore.service.AlunoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,6 +30,9 @@ class AlunoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private AlunoService alunoService;
@@ -47,12 +57,40 @@ class AlunoControllerTest {
 
     @Test
     void findAll_ShouldReturnOk() throws Exception {
-        AlunoEntity aluno = AlunoEntity.builder().id(UUID.randomUUID()).nome("João").build();
+        CampusEntity campus = CampusEntity.builder().id(UUID.randomUUID()).nome("Campus Teste").build();
+        AlunoEntity aluno = AlunoEntity.builder()
+                .id(UUID.randomUUID())
+                .nome("João")
+                .campus(campus)
+                .build();
         when(alunoService.findAll()).thenReturn(List.of(aluno));
 
         mockMvc.perform(get("/v1/aluno"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].nome").value("João"));
+                .andExpect(jsonPath("$[0].nome").value("João"))
+                .andExpect(jsonPath("$[0].campus.nome").value("Campus Teste"));
+    }
+
+    @Test
+    void createAluno_ShouldReturnCreated() throws Exception {
+        UUID campusId = UUID.randomUUID();
+        AlunoDto dto = AlunoDto.builder()
+                .nome("João")
+                .numero(10)
+                .campusId(campusId)
+                .build();
+
+        CampusResponseDto campusResponse = new CampusResponseDto(campusId, "Campus Teste", "Norte");
+        AlunoResponseDto response = new AlunoResponseDto(UUID.randomUUID(), "João", 10, campusResponse);
+
+        when(alunoService.salvarAluno(any(AlunoDto.class))).thenReturn(response);
+
+        mockMvc.perform(post("/v1/aluno")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nome").value("João"))
+                .andExpect(jsonPath("$.campus.nome").value("Campus Teste"));
     }
 
     @Test

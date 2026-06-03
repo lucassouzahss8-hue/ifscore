@@ -24,6 +24,10 @@ public class AlunoEntity {
     @Column(nullable = false)
     private Integer numero;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus_id", nullable = false)
+    private CampusEntity campus;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "aluno_roles",
             joinColumns = @JoinColumn(name = "aluno_id"),

@@ -1,10 +1,13 @@
 package com.br.lukisDEV.ifscore.service;
 
 import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
+import com.br.lukisDEV.ifscore.database.model.CampusEntity;
 import com.br.lukisDEV.ifscore.database.model.EstatisticaEntity;
 import com.br.lukisDEV.ifscore.database.repository.IAlunoRepository;
 import com.br.lukisDEV.ifscore.database.repository.IEstatisticaRepository;
+import com.br.lukisDEV.ifscore.dto.AlunoDto;
 import com.br.lukisDEV.ifscore.dto.AlunoPerfilDto;
+import com.br.lukisDEV.ifscore.dto.AlunoResponseDto;
 import com.br.lukisDEV.ifscore.exception.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,19 +33,50 @@ class AlunoServiceTest {
     @Mock
     private IEstatisticaRepository estatisticaRepository;
 
+    @Mock
+    private CampusService campusService;
+
     @InjectMocks
     private AlunoService alunoService;
 
     private UUID alunoId;
     private AlunoEntity alunoEntity;
+    private CampusEntity campusEntity;
 
     @BeforeEach
     void setUp() {
         alunoId = UUID.randomUUID();
+        campusEntity = CampusEntity.builder()
+                .id(UUID.randomUUID())
+                .nome("Campus Teste")
+                .regiao("Norte")
+                .build();
         alunoEntity = AlunoEntity.builder()
                 .id(alunoId)
                 .nome("João Silva")
+                .numero(10)
+                .campus(campusEntity)
                 .build();
+    }
+
+    @Test
+    void salvarAluno_ShouldReturnResponse() {
+        AlunoDto dto = AlunoDto.builder()
+                .nome("João Silva")
+                .numero(10)
+                .campusId(campusEntity.getId())
+                .build();
+
+        when(campusService.findById(campusEntity.getId())).thenReturn(campusEntity);
+        when(alunoRepository.save(any(AlunoEntity.class))).thenReturn(alunoEntity);
+
+        AlunoResponseDto response = alunoService.salvarAluno(dto);
+
+        assertNotNull(response);
+        assertEquals("João Silva", response.nome());
+        assertEquals("Campus Teste", response.campus().nome());
+        verify(campusService).findById(campusEntity.getId());
+        verify(alunoRepository).save(any(AlunoEntity.class));
     }
 
     @Test

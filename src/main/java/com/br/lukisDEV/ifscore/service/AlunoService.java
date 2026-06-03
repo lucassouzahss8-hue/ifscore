@@ -79,10 +79,12 @@ public class AlunoService {
     }
 
     public AlunoResponseDto salvarAluno(AlunoDto dto) {
-    AlunoEntity aluno = new AlunoEntity();
-    aluno.setNome(dto.getNome());
-    aluno.setNumero(dto.getNumero());
-    return toResponse(alunoRepository.save(aluno));
+        CampusEntity campus = campusService.findById(dto.getCampusId());
+        AlunoEntity aluno = new AlunoEntity();
+        aluno.setNome(dto.getNome());
+        aluno.setNumero(dto.getNumero());
+        aluno.setCampus(campus);
+        return AlunoResponseDto.from(alunoRepository.save(aluno));
     }
 
     public List<AlunoEntity> findAll() {
@@ -100,10 +102,6 @@ public class AlunoService {
     }
 
     public AlunoResponseDto toResponse(AlunoEntity aluno) {
-        return new AlunoResponseDto(
-                aluno.getId(),
-                aluno.getNome(),
-                aluno.getNumero()
-        );
+        return AlunoResponseDto.from(aluno);
     }
 }

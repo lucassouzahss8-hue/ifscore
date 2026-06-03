@@ -8,13 +8,15 @@ import java.util.UUID;
 public record AlunoResponseDto(
         UUID id,
         String nome,
-        Integer numero
+        Integer numero,
+        CampusResponseDto campus
         ) {
     public static AlunoResponseDto from(AlunoEntity aluno) {
         return new AlunoResponseDto(
                 aluno.getId(),
                 aluno.getNome(),
-                aluno.getNumero()
+                aluno.getNumero(),
+                aluno.getCampus() != null ? CampusResponseDto.from(aluno.getCampus()) : null
         );
     }
 }

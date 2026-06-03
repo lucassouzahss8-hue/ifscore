@@ -18,4 +18,6 @@ public class AlunoDto {
     private String nome;
     @NotNull
     private Integer numero;
+    @NotNull
+    private UUID campusId;
 }

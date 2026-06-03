@@ -1,12 +1,12 @@
 package com.br.lukisDEV.ifscore.service;
 
 import com.br.lukisDEV.ifscore.config.TokenProvider;
-import com.br.lukisDEV.ifscore.database.model.AlunoEntity;
 import com.br.lukisDEV.ifscore.database.model.ProfessorEntity;
 import com.br.lukisDEV.ifscore.database.model.RolesEntity;
-import com.br.lukisDEV.ifscore.database.repository.IAlunoRepository;
+import com.br.lukisDEV.ifscore.database.model.UserEntity;
 import com.br.lukisDEV.ifscore.database.repository.IProfessorRepository;
 import com.br.lukisDEV.ifscore.database.repository.IRolesRepository;
+import com.br.lukisDEV.ifscore.database.repository.IUserRepository;
 import com.br.lukisDEV.ifscore.dto.LoginRequestDto;
 import com.br.lukisDEV.ifscore.dto.RegisterRequestDto;
 import com.br.lukisDEV.ifscore.dto.TokenResponseDto;
@@ -39,7 +39,7 @@ class AuthenticationServiceTest {
     @Mock
     private IRolesRepository rolesRepository;
     @Mock
-    private IAlunoRepository alunoRepository;
+    private IUserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -61,30 +61,28 @@ class AuthenticationServiceTest {
         RolesEntity role = RolesEntity.builder().nome(RoleTypeEnum.ROLE_PROFESSOR.name()).build();
 
         when(professorRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        when(alunoRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
         when(rolesRepository.findByNome(RoleTypeEnum.ROLE_PROFESSOR.name())).thenReturn(Optional.of(role));
         when(passwordEncoder.encode(dto.getSenha())).thenReturn("encodedPassword");
 
         authenticationService.register(dto);
 
         verify(professorRepository, times(1)).save(any(ProfessorEntity.class));
-        verify(alunoRepository, never()).save(any(AlunoEntity.class));
     }
 
     @Test
-    void register_AlunoEmail_ShouldRegisterAluno() throws EmailException {
-        RegisterRequestDto dto = new RegisterRequestDto("Aluno", "test@gmail.com", "password");
-        RolesEntity role = RolesEntity.builder().nome(RoleTypeEnum.ROLE_ALUNO.name()).build();
+    void register_UserEmail_ShouldRegisterUser() throws EmailException {
+        RegisterRequestDto dto = new RegisterRequestDto("User", "test@gmail.com", "password");
+        RolesEntity role = RolesEntity.builder().nome(RoleTypeEnum.ROLE_USER.name()).build();
 
         when(professorRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        when(alunoRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        when(rolesRepository.findByNome(RoleTypeEnum.ROLE_ALUNO.name())).thenReturn(Optional.of(role));
+        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(rolesRepository.findByNome(RoleTypeEnum.ROLE_USER.name())).thenReturn(Optional.of(role));
         when(passwordEncoder.encode(dto.getSenha())).thenReturn("encodedPassword");
 
         authenticationService.register(dto);
 
-        verify(alunoRepository, times(1)).save(any(AlunoEntity.class));
-        verify(professorRepository, never()).save(any(ProfessorEntity.class));
+        verify(userRepository, times(1)).save(any(UserEntity.class));
     }
 
     @Test
