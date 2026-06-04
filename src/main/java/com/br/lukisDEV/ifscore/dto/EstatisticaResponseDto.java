@@ -17,5 +17,7 @@ public class EstatisticaResponseDto {
     private Integer assistencias;
     private Integer lancesLivres;
     private Integer faltas;
+    private  Integer roubos;
+    private Integer tocos;
     private Integer totalPontosNoLance;
     }

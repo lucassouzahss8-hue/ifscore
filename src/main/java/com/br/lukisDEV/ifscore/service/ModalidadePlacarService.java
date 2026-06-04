@@ -34,26 +34,43 @@ public class ModalidadePlacarService {
             throw new RuntimeException("Partida já finalizada");
         }
 
-        boolean isCampus1 = dto.getCampus().equalsIgnoreCase(partida.getCampus1().getNome());
-        boolean isCampus2 = dto.getCampus().equalsIgnoreCase(partida.getCampus2().getNome());
+        CampusEntity campusAlvo = null;
+        String inputCampus = dto.getCampus().trim();
 
-        if (!isCampus1 && !isCampus2) {
-            throw new RuntimeException("O campus informado não pertence a esta partida");
+        // Tenta identificar o campus por ID ou Nome
+        if (isUUID(inputCampus)) {
+            UUID campusId = UUID.fromString(inputCampus);
+            if (partida.getCampus1() != null && partida.getCampus1().getId().equals(campusId)) {
+                campusAlvo = partida.getCampus1();
+            } else if (partida.getCampus2() != null && partida.getCampus2().getId().equals(campusId)) {
+                campusAlvo = partida.getCampus2();
+            }
+        } else {
+            if (partida.getCampus1() != null && inputCampus.equalsIgnoreCase(partida.getCampus1().getNome())) {
+                campusAlvo = partida.getCampus1();
+            } else if (partida.getCampus2() != null && inputCampus.equalsIgnoreCase(partida.getCampus2().getNome())) {
+                campusAlvo = partida.getCampus2();
+            }
         }
 
-        CampusEntity campus = campusService.findByNome(dto.getCampus());
+        if (campusAlvo == null) {
+            throw new RuntimeException("O campus informado ('" + inputCampus + "') não pertence a esta partida.");
+        }
+
+        final CampusEntity campus = campusAlvo;
 
         EstatisticaEntity estCampus = estatisticaRepository
-                .findByPartida_IdAndCampus_NomeAndAlunoIsNull(partidaId, dto.getCampus())
+                .findByPartida_IdAndCampus_NomeAndAlunoIsNull(partidaId, campus.getNome())
                 .orElseGet(() -> EstatisticaEntity.builder().campus(campus).partida(partida).build());
 
         aplicarIncrementos(estCampus, dto);
         estatisticaRepository.save(estCampus);
 
+        EstatisticaEntity estFinal = estCampus;
         String nomeAluno = "Geral Campus";
         if (dto.getAlunoId() != null) {
             EstatisticaEntity estAluno = estatisticaRepository
-                    .findByPartida_IdAndCampus_NomeAndAluno_Id(partidaId, dto.getCampus(), dto.getAlunoId())
+                    .findByPartida_IdAndCampus_NomeAndAluno_Id(partidaId, campus.getNome(), dto.getAlunoId())
                     .orElseGet(() -> {
                         AlunoEntity aluno = alunoRepository.findById(dto.getAlunoId())
                                 .orElseThrow(() -> new NotFoundException("Aluno não encontrado"));
@@ -63,30 +80,42 @@ public class ModalidadePlacarService {
             aplicarIncrementos(estAluno, dto);
             nomeAluno = estAluno.getAluno().getNome();
             estatisticaRepository.save(estAluno);
+            estFinal = estAluno;
         }
 
         int pontosGanhos = (coalesce(dto.getBolas2()) * 2)
                 + (coalesce(dto.getBolas3()) * 3)
                 + coalesce(dto.getLancesLivres());
 
-        if (isCampus1) {
-            partida.setPlacarCampus1(partida.getPlacarCampus1() + pontosGanhos);
+        if (campus.getId().equals(partida.getCampus1().getId())) {
+            partida.setPlacarCampus1(coalesce(partida.getPlacarCampus1()) + pontosGanhos);
         } else {
-            partida.setPlacarCampus2(partida.getPlacarCampus2() + pontosGanhos);
+            partida.setPlacarCampus2(coalesce(partida.getPlacarCampus2()) + pontosGanhos);
         }
         partidaRepository.save(partida);
 
         return EstatisticaResponseDto.builder()
-                .campus(dto.getCampus())
+                .campus(campus.getNome())
                 .alunoNome(nomeAluno)
-                .bolas2(dto.getBolas2())
-                .bolas3(dto.getBolas3())
-                .rebotes(dto.getRebotes())
-                .assistencias(dto.getAssistencias())
-                .lancesLivres(dto.getLancesLivres())
-                .faltas(dto.getFaltas())
+                .bolas2(estFinal.getBolas2())
+                .bolas3(estFinal.getBolas3())
+                .rebotes(estFinal.getRebotes())
+                .assistencias(estFinal.getAssistencias())
+                .lancesLivres(estFinal.getLancesLivres())
+                .faltas(estFinal.getFaltas())
+                .roubos(estFinal.getRoubos())
+                .tocos(estFinal.getTocos())
                 .totalPontosNoLance(pontosGanhos)
                 .build();
+    }
+
+    private boolean isUUID(String str) {
+        try {
+            UUID.fromString(str);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     @Transactional
@@ -98,10 +127,13 @@ public class ModalidadePlacarService {
             throw new RuntimeException("Partida já finalizada");
         }
 
-        if (partida.getPlacarCampus1() > partida.getPlacarCampus2()) {
-            partida.setVencedor(partida.getCampus1().getNome());
-        } else if (partida.getPlacarCampus2() > partida.getPlacarCampus1()) {
-            partida.setVencedor(partida.getCampus2().getNome());
+        int placar1 = coalesce(partida.getPlacarCampus1());
+        int placar2 = coalesce(partida.getPlacarCampus2());
+
+        if (placar1 > placar2) {
+            partida.setVencedor(partida.getCampus1() != null ? partida.getCampus1().getNome() : "DESCONHECIDO");
+        } else if (placar2 > placar1) {
+            partida.setVencedor(partida.getCampus2() != null ? partida.getCampus2().getNome() : "DESCONHECIDO");
         } else {
             
             if (partida.getRodada() != TipoRodada.GRUPO) {

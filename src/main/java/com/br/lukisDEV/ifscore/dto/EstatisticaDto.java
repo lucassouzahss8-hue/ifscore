@@ -43,4 +43,12 @@ public class EstatisticaDto {
     @PositiveOrZero
     @Builder.Default
     private Integer faltas = 0;
+
+    @PositiveOrZero
+    @Builder.Default
+    private Integer roubos = 0;
+
+    @PositiveOrZero
+    @Builder.Default
+    private Integer tocos = 0;
 }

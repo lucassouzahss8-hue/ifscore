@@ -18,8 +18,10 @@ public class EventoDto {
     private String nome;
     @NotBlank
     private String local;
-    @NotNull
-    private LocalDate data;
+    @NotNull(message = "A data de início não deve ser nula")
+    private LocalDate dataInicio;
+    @NotNull(message = "A data de fim não deve ser nula")
+    private LocalDate dataFim;
     private List<ModalidadeDto> modalidades;
 
 }

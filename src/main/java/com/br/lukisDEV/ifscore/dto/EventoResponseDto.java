@@ -9,9 +9,16 @@ public record EventoResponseDto(
         UUID id,
         String nome,
         String local,
-        LocalDate data
+        LocalDate dataInicio,
+        LocalDate dataFim
 ) {
     public static EventoResponseDto from(EventoEntity evento) {
-        return new EventoResponseDto(evento.getId(), evento.getNome(), evento.getLocal(), evento.getData());
+        return new EventoResponseDto(
+                evento.getId(),
+                evento.getNome(),
+                evento.getLocal(),
+                evento.getDataInicio(),
+                evento.getDataFim()
+        );
     }
 }
