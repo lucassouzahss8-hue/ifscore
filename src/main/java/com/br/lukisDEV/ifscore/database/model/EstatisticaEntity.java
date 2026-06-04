@@ -31,4 +31,6 @@
                 @Builder.Default private Integer assistencias = 0;
                 @Builder.Default private Integer lancesLivres = 0;
                 @Builder.Default private Integer faltas = 0;
+                @Builder.Default private Integer roubos = 0;
+                @Builder.Default private Integer tocos = 0;
     }

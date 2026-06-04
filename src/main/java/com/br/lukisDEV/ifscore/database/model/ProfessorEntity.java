@@ -30,6 +30,7 @@ public class ProfessorEntity implements UserDetails {
     @JoinTable(name = "professor_roles",
         joinColumns = @JoinColumn(name = "professor_id"),
                     inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @Builder.Default
     private Set<RolesEntity> roles = new HashSet<>();
 
     @Override

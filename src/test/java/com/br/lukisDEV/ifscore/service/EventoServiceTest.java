@@ -43,13 +43,15 @@ class EventoServiceTest {
                 .id(eventoId)
                 .nome("Evento Teste")
                 .local("Local Teste")
-                .data(LocalDate.now())
+                .dataInicio(LocalDate.now())
+                .dataFim(LocalDate.now().plusDays(5))
                 .build();
 
         eventoDto = EventoDto.builder()
                 .nome("Evento Teste")
                 .local("Local Teste")
-                .data(LocalDate.now())
+                .dataInicio(LocalDate.now())
+                .dataFim(LocalDate.now().plusDays(5))
                 .build();
     }
 

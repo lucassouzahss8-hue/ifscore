@@ -33,6 +33,8 @@ public class ModalidadeClassificacaoService {
             if (!chave.equals(partida.getChave())) continue;
             if (partida.getFinalizada() == null || !partida.getFinalizada()) continue;
 
+            if (partida.getCampus1() == null || partida.getCampus2() == null) continue;
+
             String campus1 = partida.getCampus1().getNome();
             String campus2 = partida.getCampus2().getNome();
 
@@ -41,8 +43,8 @@ public class ModalidadeClassificacaoService {
             saldo.putIfAbsent(campus1, 0);
             saldo.putIfAbsent(campus2, 0);
 
-            int placar1 = partida.getPlacarCampus1();
-            int placar2 = partida.getPlacarCampus2();
+            int placar1 = partida.getPlacarCampus1() != null ? partida.getPlacarCampus1() : 0;
+            int placar2 = partida.getPlacarCampus2() != null ? partida.getPlacarCampus2() : 0;
 
             if (placar1 > placar2) vitorias.put(campus1, vitorias.get(campus1) + 1);
             else if (placar2 > placar1) vitorias.put(campus2, vitorias.get(campus2) + 1);
@@ -72,22 +74,27 @@ public class ModalidadeClassificacaoService {
             if (!chave.equals(partida.getChave())) continue;
             if (partida.getFinalizada() == null || !partida.getFinalizada()) continue;
 
+            if (partida.getCampus1() == null || partida.getCampus2() == null) continue;
+
             String campus1 = partida.getCampus1().getNome();
             String campus2 = partida.getCampus2().getNome();
 
             jogos.put(campus1, jogos.getOrDefault(campus1, 0) + 1);
             jogos.put(campus2, jogos.getOrDefault(campus2, 0) + 1);
 
-            pontosPro.put(campus1, pontosPro.getOrDefault(campus1, 0) + partida.getPlacarCampus1());
-            pontosContra.put(campus1, pontosContra.getOrDefault(campus1, 0) + partida.getPlacarCampus2());
+            int placar1 = partida.getPlacarCampus1() != null ? partida.getPlacarCampus1() : 0;
+            int placar2 = partida.getPlacarCampus2() != null ? partida.getPlacarCampus2() : 0;
 
-            pontosPro.put(campus2, pontosPro.getOrDefault(campus2, 0) + partida.getPlacarCampus2());
-            pontosContra.put(campus2, pontosContra.getOrDefault(campus2, 0) + partida.getPlacarCampus1());
+            pontosPro.put(campus1, pontosPro.getOrDefault(campus1, 0) + placar1);
+            pontosContra.put(campus1, pontosContra.getOrDefault(campus1, 0) + placar2);
 
-            if (partida.getPlacarCampus1() > partida.getPlacarCampus2()) {
+            pontosPro.put(campus2, pontosPro.getOrDefault(campus2, 0) + placar2);
+            pontosContra.put(campus2, pontosContra.getOrDefault(campus2, 0) + placar1);
+
+            if (placar1 > placar2) {
                 vitorias.put(campus1, vitorias.getOrDefault(campus1, 0) + 1);
                 derrotas.put(campus2, derrotas.getOrDefault(campus2, 0) + 1);
-            } else if (partida.getPlacarCampus2() > partida.getPlacarCampus1()) {
+            } else if (placar2 > placar1) {
                 vitorias.put(campus2, vitorias.getOrDefault(campus2, 0) + 1);
                 derrotas.put(campus1, derrotas.getOrDefault(campus1, 0) + 1);
             }
@@ -122,8 +129,8 @@ public class ModalidadeClassificacaoService {
         }
 
         tabela.sort((a, b) -> {
-            int pontos = Integer.compare((int) b.get("pontos"), (int) a.get("pontos"));
-            if (pontos != 0) return pontos;
+            int pontosVal = Integer.compare((int) b.get("pontos"), (int) a.get("pontos"));
+            if (pontosVal != 0) return pontosVal;
             return Integer.compare((int) b.get("saldo"), (int) a.get("saldo"));
         });
 

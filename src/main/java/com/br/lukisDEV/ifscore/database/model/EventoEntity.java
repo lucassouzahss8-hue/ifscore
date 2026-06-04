@@ -26,7 +26,9 @@ public class EventoEntity {
     @Column(nullable = false)
     private String local;
     @Column(nullable = false)
-    private LocalDate data;
+    private LocalDate dataInicio;
+    @Column(nullable = false)
+    private LocalDate dataFim;
 
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

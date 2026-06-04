@@ -33,7 +33,8 @@ public class EventoService {
 
         evento.setNome(dto.getNome());
         evento.setLocal(dto.getLocal());
-        evento.setData(dto.getData());
+        evento.setDataInicio(dto.getDataInicio());
+        evento.setDataFim(dto.getDataFim());
 
         return eventoRepository.save(evento);
     }
@@ -45,7 +46,8 @@ public class EventoService {
 
         evento.setNome(dto.getNome());
         evento.setLocal(dto.getLocal());
-        evento.setData(dto.getData());
+        evento.setDataInicio(dto.getDataInicio());
+        evento.setDataFim(dto.getDataFim());
 
         return eventoRepository.save(evento);
     }

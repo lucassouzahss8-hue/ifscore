@@ -75,10 +75,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseDto> handleMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        String message = "Erro na leitura do JSON: Verifique se os campos e formatos de data (yyyy-MM-dd) estão corretos. Detalhe: " + ex.getMostSpecificCause().getMessage();
+        ErrorResponseDto response = ErrorResponseDto.builder()
+                .message(message)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleException(Exception ex) {
+        ex.printStackTrace(); // Log temporário para debug no console
         ErrorResponseDto response = ErrorResponseDto.builder()
-                .message("Erro interno no servidor")
+                .message("Erro interno: " + ex.getMessage())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
