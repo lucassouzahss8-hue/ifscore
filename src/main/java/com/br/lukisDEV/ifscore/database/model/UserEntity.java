@@ -24,6 +24,14 @@ public class UserEntity implements UserDetails{
     private String email;
     @Column (nullable = false)
     private String senha;
+    @Column (nullable = false)
+    private boolean emailVerified = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean enabled = false;
+
+    private String verificationToken;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
@@ -65,6 +73,6 @@ public class UserEntity implements UserDetails{
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return enabled;
     }
 }

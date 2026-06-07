@@ -13,5 +13,7 @@ public interface IProfessorRepository extends JpaRepository<ProfessorEntity, UUI
     Optional<ProfessorEntity> findByEmail(String email);
 
     boolean existsByEmail(@NotBlank @Email String email);
+
+    Optional<ProfessorEntity> findByVerificationToken(String token);
 }
 

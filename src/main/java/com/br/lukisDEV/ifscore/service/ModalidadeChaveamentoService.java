@@ -56,7 +56,8 @@ public class ModalidadeChaveamentoService {
         List<String> chaveB = classificacaoService.classificarPorChave(partidas, "B");
 
         if (chaveA.size() < 2 || chaveB.size() < 2) {
-            throw new IllegalStateException("Nao ha times suficientes para gerar a semifinal (minimo 2 por chave)");
+
+            throw new IllegalStateException("Nao ha times suficientes para gerar a semifinal (minimo 2 por chave). Chave A: " + chaveA.size() + ", Chave B: " + chaveB.size());
         }
 
         List<PartidaEntity> semifinais = new ArrayList<>();

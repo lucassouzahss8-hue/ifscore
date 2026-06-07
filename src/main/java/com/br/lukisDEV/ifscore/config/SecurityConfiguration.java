@@ -42,7 +42,8 @@ public class SecurityConfiguration {
                             response.setStatus(HttpStatus.FORBIDDEN.value());
                         }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/v1/auth/**").permitAll()
+                        .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/campus/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/v1/evento/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/modalidade/**").hasRole("PROFESSOR")
                         .requestMatchers(HttpMethod.POST, "/v1/evento/**").hasRole("PROFESSOR")
@@ -50,11 +51,20 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/v1/campus/**").hasRole("PROFESSOR")
                         .requestMatchers(HttpMethod.GET, "/v1/modalidade/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/chaveamento/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.PUT, "/v1/chaveamento/**").hasRole("PROFESSOR")
                         .requestMatchers(HttpMethod.GET, "/v1/classificacao/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/v1/placar/**").hasRole("PROFESSOR")
                         .requestMatchers(HttpMethod.GET, "/v1/placar/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/aluno/**").hasRole("PROFESSOR")
                         .requestMatchers(HttpMethod.GET, "/v1/aluno/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/v1/aluno/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/evento/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/campus/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/modalidade/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.PUT, "/v1/evento/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.PUT, "/v1/aluno/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.PUT, "/v1/evento/**").hasRole("PROFESSOR")
+                        .requestMatchers(HttpMethod.PUT, "/v1/campus/**").hasRole("PROFESSOR")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html").permitAll()
 
                 )
@@ -78,7 +88,7 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
         configuration.setExposedHeaders(List.of("Authorization"));
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

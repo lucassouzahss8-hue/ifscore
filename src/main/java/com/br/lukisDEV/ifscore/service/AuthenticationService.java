@@ -31,11 +31,11 @@ import java.util.Set;
 public class AuthenticationService {
     private final IProfessorRepository professorRepository;
     private final IRolesRepository rolesRepository;
-    private final IAlunoRepository alunoRepository;
     private final IUserRepository  userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+    private final EmailService emailService;
     @Value("${jwt.expiration}")
     private long expirationTime;
 
@@ -61,25 +61,49 @@ public class AuthenticationService {
                 .orElseGet(() -> rolesRepository.save(RolesEntity.builder()
                         .nome(roleType.name())
                         .build()));
+
+        String token = java.util.UUID.randomUUID().toString();
+
         if (roleType == RoleTypeEnum.ROLE_PROFESSOR) {
             professorRepository.save(ProfessorEntity.builder()
                     .nome(dto.getNome())
                     .email(dto.getEmail())
                     .roles(Set.of(role))
                     .senha(passwordEncoder.encode(dto.getSenha()))
+                    .enabled(false)
+                    .verificationToken(token)
                     .build());
         } else {
-            if (userRepository.existsByEmail(email)) {
-                throw new EmailException("Já existe um usuario cadastrado com este email");
-            }
             userRepository.save(UserEntity.builder()
                     .nome(dto.getNome())
                     .email(dto.getEmail())
                     .roles(Set.of(role))
                     .senha(passwordEncoder.encode(dto.getSenha()))
+                    .enabled(false)
+                    .verificationToken(token)
                     .build());
-
         }
+
+        emailService.sendVerificationEmail(email, token);
+    }
+
+    @Transactional
+    public void verifyEmail(String token) {
+        professorRepository.findByVerificationToken(token).ifPresentOrElse(professor -> {
+            professor.setEnabled(true);
+            professor.setEmailVerified(true);
+            professor.setVerificationToken(null);
+            professorRepository.save(professor);
+        }, () -> {
+            userRepository.findByVerificationToken(token).ifPresentOrElse(user -> {
+                user.setEnabled(true);
+                user.setEmailVerified(true);
+                user.setVerificationToken(null);
+                userRepository.save(user);
+            }, () -> {
+                throw new IllegalArgumentException("Token de verificação inválido");
+            });
+        });
     }
 
 
@@ -91,7 +115,9 @@ public class AuthenticationService {
                 return new TokenResponseDto(token, expirationTime);
 
             } catch (BadCredentialsException ex) {
-                throw new BadCredentialsException(ex.getMessage());
+                throw new BadCredentialsException("Credenciais inválidas");
+            } catch (org.springframework.security.authentication.DisabledException ex) {
+                throw new Exception("Email não verificado. Por favor, verifique seu email antes de fazer login.");
             } catch (Exception e) {
                 throw new Exception("Internal Error", e);
             }

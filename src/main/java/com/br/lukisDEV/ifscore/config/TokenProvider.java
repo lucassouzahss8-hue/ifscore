@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -23,15 +24,20 @@ public class TokenProvider {
 
     public String gerarToken(Authentication auth) {
         UserDetails user = (UserDetails) auth.getPrincipal();
-        return buildToken(user.getUsername());
+        return buildToken(user);
     }
 
-    private String buildToken(String username) {
+    private String buildToken(UserDetails user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
 
+        var roles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
         return Jwts.builder()
-                .subject(username)
+                .subject(user.getUsername())
+                .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(getSigningKey())
@@ -60,4 +66,25 @@ public class TokenProvider {
     public String getUsername(String token) {
         return getClaims(token).getSubject();
     }
+
+    public String generatedEmailVerify(String email){
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + expirationTime);
+        return Jwts.builder()
+                .subject(email)
+                .claim("type", "Verificação de Email")
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(getSigningKey())
+                .compact();
+
+    }
+    public boolean isEmailVerificationToken(String token) {
+        Claims claims = getClaims(token);
+
+        return "Verificação de Email".equals(
+                claims.get("type")
+        );
+    }
 }
+

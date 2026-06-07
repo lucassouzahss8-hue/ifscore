@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -52,4 +53,11 @@ public class PartidaEntity {
     @ManyToOne
     @JoinColumn(name = "rodada_id")
     private RodadaEntity rodadaEntity;
+
+    @OneToMany(
+            mappedBy = "partida",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<EstatisticaEntity> estatisticas;
 }

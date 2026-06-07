@@ -25,6 +25,14 @@ public class ProfessorEntity implements UserDetails {
     private String email;
     @Column (nullable = false)
     private String senha;
+    @Column (nullable = false)
+    private boolean emailVerified = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean enabled = false;
+
+    private String verificationToken;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "professor_roles",
@@ -65,6 +73,6 @@ public class ProfessorEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return enabled;
     }
 }

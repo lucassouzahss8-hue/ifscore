@@ -46,6 +46,8 @@ class AuthenticationServiceTest {
     private AuthenticationManager authenticationManager;
     @Mock
     private TokenProvider tokenProvider;
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private AuthenticationService authenticationService;
