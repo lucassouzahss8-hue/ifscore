@@ -21,7 +21,7 @@ public class EmailService {
         try {
 
             String verificationLink =
-                    "http://localhost:2121/v1/auth/verify?token=" + token;
+                    "https://ifscore.onrender.com/v1/auth/verify?token=" + token;
 
             String html = loadTemplate();
 
